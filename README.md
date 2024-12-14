@@ -69,14 +69,15 @@ seaborn
 Alpha Vantage API key (free at Alpha Vantage).
 
 ________________________________________________________________
-stock-market-analysis/
-├── data/                # Folder for raw and enriched datasets
-├── models/              # Folder for model evaluation metrics
-├── scripts/             # Folder for all Python scripts
+Stock-Data-Analysis/
+├── data/                # Raw and enriched datasets
+├── models/              # Saved model performance metrics
+├── scripts/             # Python scripts for analysis
 │   ├── data_collection.py
 │   ├── feature_engineering.py
 │   ├── exploratory_data_analysis.py
 │   ├── predictive_modeling.py
 │   └── visualization_and_reporting.py
-├── README.md            # The file you just created
-├── requirements.txt     # File for dependencies
+├── results/             # Optional: Images for example outputs
+├── README.md            # Project documentation
+├── requirements.txt     # Dependencies for the project
