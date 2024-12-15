@@ -58,4 +58,5 @@ def train_classification_model(X_train, X_test, y_train, y_test):
 
     print("Classification Model Evaluation:")
     print(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")
-    print("C
+    print("Classification Model Evaluation:")
+
