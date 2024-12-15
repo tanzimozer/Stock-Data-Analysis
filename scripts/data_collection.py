@@ -1,31 +1,31 @@
-import yfinance as yf
+from alpha_vantage.timeseries import TimeSeries
+import pandas as pd
 import os
 
-# List of stock tickers
-tickers = ["TSLA", "AMZN", "MSFT", "SBUX", "AAPL", "NVDA", "JPM", "HOOD", "BLK", "GOOGL"]
+# Replace with your new API key
+api_key = '259BRTASIYO3WICX'
 
-# Create directory to save data
-output_dir = "data"
-os.makedirs(output_dir, exist_ok=True)
+# Initialize Alpha Vantage API
+ts = TimeSeries(key=api_key, output_format='pandas')
 
-# Columns required for processing
-required_columns = {"Open", "High", "Low", "Close", "Volume"}
+# List of stocks to fetch
+stocks = ['TSLA', 'AMZN', 'MSFT', 'SBUX', 'AAPL', 'NVDA', 'JPM', 'HOOD', 'BLK', 'GOOGL']
 
-# Fetch and save historical data
-for ticker in tickers:
+# Ensure the data directory exists
+os.makedirs("data", exist_ok=True)
+
+# Fetch and save data
+for stock in stocks:
     try:
-        stock = yf.Ticker(ticker)
-        data = stock.history(period="max")
-
-        # Ensure required columns are present
-        if not required_columns.issubset(data.columns):
-            print(f"Data for {ticker} is missing required columns. Skipping.")
-            continue
+        print(f"Fetching data for {stock}...")
+        data, meta_data = ts.get_daily(symbol=stock, outputsize='full')
         
-        # Save data to CSV
-        output_file = os.path.join(output_dir, f"{ticker}_daily_data.csv")
-        data.reset_index(inplace=True)  # Ensure 'Date' is a column
-        data.to_csv(output_file, index=False)
-        print(f"Data saved for {ticker} in {output_file}")
+        # Rename columns to ensure compatibility
+        data.reset_index(inplace=True)
+        data.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+        
+        # Save to CSV
+        data.to_csv(f"data/{stock}_daily_data.csv", index=False)
+        print(f"Data saved for {stock}")
     except Exception as e:
-        print(f"Error fetching data for {ticker}: {e}")
+        print(f"An error occurred while fetching data for {stock}: {e}")
