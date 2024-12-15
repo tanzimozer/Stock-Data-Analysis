@@ -4,7 +4,7 @@ import os
 import time
 
 # Replace with your API key
-api_key = 'S2777LSDBW510FV3'
+api_key = 'ZYPLHYF6FRO72W6Y'
 
 # Initialize Alpha Vantage API
 ts = TimeSeries(key=api_key, output_format='pandas')
