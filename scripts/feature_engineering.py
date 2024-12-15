@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 
 # Moving Averages
 def add_moving_averages(data, short_window=10, long_window=50):
@@ -8,7 +9,7 @@ def add_moving_averages(data, short_window=10, long_window=50):
     data[f'EMA_{long_window}'] = data['close'].ewm(span=long_window, adjust=False).mean()
     return data
 
-# MACD (Moving Average Convergence Divergence)
+# MACD
 def add_macd(data):
     data['EMA_12'] = data['close'].ewm(span=12, adjust=False).mean()
     data['EMA_26'] = data['close'].ewm(span=26, adjust=False).mean()
@@ -16,7 +17,7 @@ def add_macd(data):
     data['Signal_Line'] = data['MACD'].ewm(span=9, adjust=False).mean()
     return data
 
-# RSI (Relative Strength Index)
+# RSI
 def add_rsi(data, period=14):
     delta = data['close'].diff()
     gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
@@ -25,7 +26,7 @@ def add_rsi(data, period=14):
     data['RSI'] = 100 - (100 / (1 + rs))
     return data
 
-# ADX (Average Directional Index)
+# ADX
 def add_adx(data, period=14):
     data['High_Low'] = data['high'] - data['low']
     data['High_Close'] = abs(data['high'] - data['close'].shift(1))
@@ -44,36 +45,45 @@ def add_adx(data, period=14):
     data['ADX'] = data['DX'].rolling(window=period).mean()
     return data
 
-# Apply all features to a dataset
+# Add features to the dataset
 def add_features(file_name):
-    data = pd.read_csv(file_name)
+    try:
+        data = pd.read_csv(file_name)
 
-    # Rename columns for consistency
-    data.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+        # Check for required columns
+        required_columns = {'date', 'open', 'high', 'low', 'close', 'volume'}
+        if not required_columns.issubset(data.columns):
+            raise ValueError(f"Missing required columns in {file_name}: {required_columns - set(data.columns)}")
 
-    # Convert date to datetime
-    data['date'] = pd.to_datetime(data['date'])
+        # Rename columns for consistency
+        data.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
 
-    # Add indicators
-    data = add_moving_averages(data)
-    data = add_macd(data)
-    data = add_rsi(data)
-    data = add_adx(data)
+        # Convert date to datetime
+        data['date'] = pd.to_datetime(data['date'])
 
-    # Drop NaN rows (from rolling calculations)
-    data.dropna(inplace=True)
+        # Add indicators
+        data = add_moving_averages(data)
+        data = add_macd(data)
+        data = add_rsi(data)
+        data = add_adx(data)
 
-    # Save enriched dataset
-    enriched_file_name = file_name.replace('.csv', '_enriched.csv')
-    data.to_csv(enriched_file_name, index=False)
-    print(f"Features added and saved to {enriched_file_name}")
+        # Drop NaN rows (from rolling calculations)
+        data.dropna(inplace=True)
 
-# Example usage
+        # Save enriched dataset
+        enriched_file_name = file_name.replace('.csv', '_enriched.csv')
+        data.to_csv(enriched_file_name, index=False)
+        print(f"Features added and saved to {enriched_file_name}")
+
+    except FileNotFoundError:
+        print(f"File not found: {file_name}")
+    except Exception as e:
+        print(f"An error occurred while processing {file_name}: {e}")
+
 if __name__ == "__main__":
-    file_names = [
-        "data/TSLA_daily_data.csv",
-        "data/AMZN_daily_data.csv",
-        # Add other stock files here
-    ]
+    # Automatically detect raw files
+    data_dir = "data"
+    file_names = [os.path.join(data_dir, file) for file in os.listdir(data_dir) if file.endswith('_daily_data.csv')]
+
     for file in file_names:
         add_features(file)
