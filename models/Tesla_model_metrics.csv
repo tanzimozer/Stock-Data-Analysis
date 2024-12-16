@@ -1,0 +1,3 @@
+Model,Metric,Value
+Regression,MSE / R²,10.32 / 0.89
+Classification,Accuracy,85.60
